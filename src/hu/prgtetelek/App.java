@@ -27,5 +27,6 @@ public class App {
 		System.out.println(facade.search(101));
 		System.out.println(facade.count(37));
 		System.out.println(facade.max());
+		System.out.println(facade.sort());
 			}
 }

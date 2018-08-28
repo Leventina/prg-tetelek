@@ -1,6 +1,8 @@
 package hu.prgtetelek.model;
 
-import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 
 import hu.prgtetelek.model.service.simple.Choose;
 import hu.prgtetelek.model.service.simple.Count;
@@ -9,13 +11,10 @@ import hu.prgtetelek.model.service.simple.Search;
 import hu.prgtetelek.model.service.simple.Select;
 import hu.prgtetelek.model.service.simple.SimpleStrategy;
 import hu.prgtetelek.model.service.simple.Summarize;
-import hu.prgtetelek.model.service.sort.BubbleSort;
-import hu.prgtetelek.model.service.sort.SimpleSort;
-import hu.prgtetelek.model.service.sort.SortStrategy;
 
 public class ProgramFacade {
 
-	private final int[] x;
+	private final List<Integer> x;
 
 	public ProgramFacade() {
 		Initialization initialization = new Initialization(100, 100);
@@ -38,40 +37,31 @@ public class ProgramFacade {
 		return String.format("A sorozat %d. eleme osztható %d-vel", select.getResult(denominator), denominator);
 	}
 	public String search  (final int denominator) {
-		SimpleStrategy<Integer> search = new Search(x);
-		return search.getResult(denominator) == -1
-				? String.format("A sorozhatban nem található %d-vel osztható elem.", denominator )
-				: String.format("A sorozatban %s %d-vel osztható szám.", search.getResult(denominator), denominator);		
+		SimpleStrategy<Optional<Integer>> search = new Search(x);
+		return search.getResult(denominator).isPresent()
+				? String.format("A sorozatban %s %d-vel osztható szám.", search.getResult(denominator).get(), denominator)
+				: String.format("A sorozhatban nem található %d-vel osztható elem.", denominator);	
 	}
 	
 	public String count(final int denominator) {
-		SimpleStrategy<Integer> count = new Count(x);
+		SimpleStrategy<Long> count = new Count(x);
 		return String.format("A sorozat %d db %d-vel osztható szám van", count.getResult(denominator), denominator);
 	}
 	
 	public String max() {
 		SimpleStrategy<Integer> max = new Max(x);
-		int maxIndex = max.getResult(0);
-		return String.format("A sorozat %d. eleme a legnagyobb (%d)", maxIndex, x[maxIndex]);
+		return String.format("A sorozat legnagyobb értékû eleme a(z) %d.", max.getResult(0));
 	}
 	
 	public String sort() {
-		return String.format("A rendezendõ tömb %n%s%nKözvetlen kiválasztással %n%s%nBuborékrendezéssel:%n%s%n", this, simpleSort(), bubbleSort());
-	}
-	
-	
-	private String simpleSort() {
-		SortStrategy simple = new SimpleSort(x);
-		return Arrays.toString(simple.sort());
-	}
-	
-	private String bubbleSort() {
-		SortStrategy bubble = new BubbleSort(x);
-		return Arrays.toString(bubble.sort());
+		String text = String.format("A rendezendõ tömb %n%s", this);
+		x.sort(Comparator.naturalOrder());
+		text += String.format("Rendezve %n%s", this);
+		return text;
 	}
 	
 	@Override
 	public String toString() {
-		return "App [x=" + Arrays.toString(x) + "]";
+		return "App [x=" + x.toString() + "]";
 	}
 }
